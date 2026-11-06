@@ -20,12 +20,12 @@ function setModo(c){cad=c;$('#lCad').hidden=!c;$('#lModo').textContent=c?'Já te
 function ajusta(){const s=perfil==='sindico';$('#lExtraL').textContent=s?'Nome do prédio':'Código do prédio';$('#lAptoW').hidden=false;$('#lAptoL').textContent=s?'Apartamento (opcional)':'Apartamento'}
 $('#lModo').onclick=()=>setModo(!cad);document.querySelectorAll('[data-p]').forEach(b=>b.addEventListener('click',ajusta));
 const finish=x=>x.papel==='sindico'?sb.rpc('criar_condominio',{p_nome:x.extra,p_usuario:x.nome,p_unidade:x.apto||null}):sb.rpc('entrar_condominio',{p_codigo:x.extra,p_usuario:x.nome,p_unidade:x.apto});
-const getP=async id=>(await sb.from('perfis').select('*,condominios(nome,codigo)').eq('id',id).maybeSingle()).data;
+const getP=async id=>(await sb.from('perfis').select('*,condominios(nome,codigo,unidades,plano)').eq('id',id).maybeSingle()).data;
 async function enter(){const {data:{user}}=await sb.auth.getUser();if(!user)return;let p=await getP(user.id);
  if(!p){let pend=null;try{pend=JSON.parse(localStorage.getItem('vz-pend')||'null')}catch(e){}if(!pend&&user.user_metadata&&user.user_metadata.papel)pend=user.user_metadata;
   if(pend){const r=await finish(pend);if(r.error){err(r.error.message);await sb.auth.signOut();return}try{localStorage.removeItem('vz-pend')}catch(e){}p=await getP(user.id)}}
  if(!p){err('Esta conta ainda não está ligada a um prédio. Use "Criar conta".');await sb.auth.signOut();return}
- me={id:user.id,condo:p.condominios,condoId:p.condominio_id,unidade:p.unidade,nome:p.nome,email:user.email};S.user={p:p.papel,n:p.nome.split(' ')[0]};apply();
+ me={id:user.id,condo:p.condominios,condoId:p.condominio_id,unidade:p.unidade,nome:p.nome,email:user.email,foto:p.foto_path};S.user={p:p.papel,n:p.nome.split(' ')[0]};apply();
  $('#local').textContent=p.condominios.nome+' · '+(p.papel==='sindico'?'Síndico':'Apto '+p.unidade);rPerfil();await load();subscribe()}
 async function load(){if(!me)return;const t=n=>sb.from(n).select('*');
  const [a,c,v,vt,r,pr,av,pf]=await Promise.all([t('avisos').order('created_at',{ascending:false}),t('chamados').order('created_at',{ascending:false}),t('votacoes').order('created_at',{ascending:false}),t('votos'),t('reservas').order('data',{ascending:false}),t('prestadores').order('nome'),t('avaliacoes'),t('perfis')]);
@@ -47,11 +47,11 @@ $('#lForm').onsubmit=async e=>{e.preventDefault();err('');const em=$('#lMail').v
   if(!nome||!extra||(perfil==='morador'&&!apto))return err('Preencha todos os campos');
   if(!$('#lAceite').checked)return err('Marque que você leu e concorda com a Política de Privacidade');
   try{localStorage.setItem('vz-pend',JSON.stringify({papel:perfil,nome,extra,apto}))}catch(x){}
-  const r=await sb.auth.signUp({email:em,password:pw,options:{emailRedirectTo:location.origin+'/',data:{papel:perfil,nome,extra,apto,aceite_em:new Date().toISOString(),politica_versao:'2'}}});if(r.error)return err(msg(r.error));
+  const r=await sb.auth.signUp({email:em,password:pw,options:{emailRedirectTo:location.origin+'/',data:{papel:perfil,nome,extra,apto,aceite_em:new Date().toISOString(),politica_versao:'3'}}});if(r.error)return err(msg(r.error));
   if(!r.data.session){err('Enviamos um e-mail de confirmação. Confirme e depois entre.');setModo(false);return}
  }else{const r=await sb.auth.signInWithPassword({email:em,password:pw});if(r.error)return err(msg(r.error))}
  $('#lSenha').value='';await enter()};
-$('#sair').onclick=async()=>{await sb.auth.signOut();if(chan){sb.removeChannel(chan);chan=null}me=null;S.user=null;apply();toast('Você saiu da conta')};
+$('#sair').onclick=async()=>{await ntOff();await sb.auth.signOut();if(chan){sb.removeChannel(chan);chan=null}me=null;S.user=null;apply();toast('Você saiu da conta')};
 $('#cEnviar').onclick=async()=>{const d=$('#cDesc').value.trim();if(!d){toast('Descreva o problema para abrir o chamado');return}
  const [tipo,preco]=$('#cTipo').value.split('|'),btn=$('#cEnviar'),f=$('#cFoto').files[0];let foto_path=null;btn.disabled=true;
  if(f){try{const blob=await reduz(f),path=me.condoId+'/'+me.id+'/'+crypto.randomUUID()+'.jpg';const u=await sb.storage.from('chamados').upload(path,blob,{contentType:'image/jpeg'});if(u.error)throw u.error;foto_path=path}catch(x){btn.disabled=false;return toast('Não foi possível enviar a foto. Tente de novo ou abra o chamado sem foto.')}}
@@ -87,7 +87,7 @@ $('#nForm').onsubmit=async e=>{e.preventDefault();const s=$('#nSenha').value;if(
  $('#nSenha').value='';$('#nErr').textContent='';$('#nova').hidden=true;toast('Senha alterada');await enter()};
 $('#sConvite').onclick=()=>{const t='Entre no Vizinho, o app do nosso prédio '+me.condo.nome+': '+location.origin+'\nCódigo do prédio: '+me.condo.codigo+'\nToque em "Criar conta", escolha Morador e use este código.';
  if(navigator.share)navigator.share({text:t}).catch(()=>{});else window.open('https://wa.me/?text='+encodeURIComponent(t),'_blank')};
-async function reduz(file){const bmp=await createImageBitmap(file),k=Math.min(1,1280/Math.max(bmp.width,bmp.height)),c=document.createElement('canvas');c.width=Math.round(bmp.width*k);c.height=Math.round(bmp.height*k);c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);return new Promise(r=>c.toBlob(r,'image/jpeg',.8))}
+async function reduz(file,max=1280){const bmp=await createImageBitmap(file),k=Math.min(1,max/Math.max(bmp.width,bmp.height)),c=document.createElement('canvas');c.width=Math.round(bmp.width*k);c.height=Math.round(bmp.height*k);c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);return new Promise(r=>c.toBlob(r,'image/jpeg',.8))}
 const urls=new Map();let nasc=Date.now();
 async function fotos(sel){try{if(Date.now()-nasc>3000000){urls.clear();nasc=Date.now()}
  const need=S.ch.filter(c=>c.foto&&!urls.has(c.foto)).map(c=>c.foto);
@@ -110,13 +110,13 @@ $('#sGer').onclick=async e=>{const ab=e.target.closest('[data-ativo]');
  if(!confirm('Apagar '+oq[tab]+'? Isso não pode ser desfeito.'))return;
  const {data,error}=await sb.from(tab).delete().eq('id',id).select();if(error||!data||!data.length)return toast('Não foi possível apagar');await load();toast('Apagado')};
 function rPerfil(){if(!me)return;const s=S.user.p==='sindico';$('#pfDemo').hidden=true;$('#pfBox').hidden=false;$('#pfNome').value=me.nome;$('#pfApto').value=me.unidade||'';
- $('#pfMail').textContent=me.email||'';$('#pfPredio').textContent=me.condo.nome;$('#pfAptoL').textContent=s?'Apartamento (opcional)':'Apartamento';$('#pfSub').textContent=s?'Síndico':'Morador'}
+ $('#pfMail').textContent=me.email||'';$('#pfPredio').textContent=me.condo.nome;$('#pfAptoL').textContent=s?'Apartamento (opcional)':'Apartamento';$('#pfSub').textContent=s?'Síndico':'Morador';avatar();ntInit();rPlanos()}
 $('#pfSalvar').onclick=async()=>{const nome=$('#pfNome').value.trim(),apto=$('#pfApto').value.trim(),er=$('#pfErr');er.textContent='';
  if(nome.length<2){er.textContent='Digite seu nome';return}
  if(S.user.p==='morador'&&!apto){er.textContent='Digite o número do apartamento';return}
  const {error}=await sb.rpc('atualizar_perfil',{p_nome:nome,p_unidade:apto});if(error){er.textContent=error.message;return}
  me.nome=nome;me.unidade=apto||null;S.user.n=nome.split(' ')[0];$('#ola').textContent='Olá, '+S.user.n;
- $('#local').textContent=me.condo.nome+' · '+(S.user.p==='sindico'?'Síndico':'Apto '+apto);await load();toast('Perfil atualizado')};
+ $('#local').textContent=me.condo.nome+' · '+(S.user.p==='sindico'?'Síndico':'Apto '+apto);avatar();await load();toast('Perfil atualizado')};
 function hojeL(){return new Date().toLocaleDateString('sv-SE')}
 function fim(h){const m=/(\d+)h\s*$/.exec(h||'');return m?Number(m[1]):24}
 function acabou(x){const hj=hojeL();return x.data<hj||(x.data===hj&&new Date().getHours()>=fim(x.horario))}
@@ -135,5 +135,34 @@ $('#rH').hidden=true;$('#rArea').onchange=$('#rData').onchange=rHoras;
 {const hj=hojeL();$('#rData').min=hj;if(!$('#rData').value||$('#rData').value<hj)$('#rData').value=hj}
 $('#rLista').onclick=async e=>{const b=e.target.closest('[data-rc]');if(!b)return;if(!confirm('Cancelar esta reserva?'))return;
  const {data,error}=await sb.from('reservas').delete().eq('id',b.dataset.rc).select();if(error||!data||!data.length)return toast('Não foi possível cancelar');await load();toast('Reserva cancelada')};
+async function avatar(){const ini=(me.nome||'?').split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();let url=null;
+ if(me.foto){const {data}=await sb.storage.from('avatares').createSignedUrl(me.foto,3600);url=data&&data.signedUrl}
+ [$('#avTop'),$('#pfAv')].forEach(e=>{e.hidden=false;e.textContent=url?'':ini;e.style.backgroundImage=url?'url("'+url+'")':''});$('#pfFotoRm').hidden=!me.foto}
+$('#pfFotoBtn').onclick=()=>$('#pfFoto').click();
+$('#pfFoto').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const blob=await reduz(f,512),path=me.id+'/avatar.jpg';
+ const u=await sb.storage.from('avatares').upload(path,blob,{contentType:'image/jpeg',upsert:true});if(u.error)throw u.error;
+ const r=await sb.rpc('definir_foto',{p_path:path});if(r.error)throw r.error;me.foto=path;await avatar();toast('Foto atualizada')}catch(x){toast('Não foi possível enviar a foto')}e.target.value=''};
+$('#pfFotoRm').onclick=async()=>{await sb.storage.from('avatares').remove([me.foto]);const r=await sb.rpc('definir_foto',{p_path:null});if(r.error)return toast('Não foi possível remover');me.foto=null;await avatar();toast('Foto removida')};
+const u8=s=>{const r=atob((s+'='.repeat((4-s.length%4)%4)).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from([...r].map(c=>c.charCodeAt(0)))};
+async function ntSub(){try{return await (await navigator.serviceWorker.ready).pushManager.getSubscription()}catch(e){return null}}
+async function ntInit(){if(!C.vapid||!('serviceWorker' in navigator)||!('PushManager' in window))return;$('#ntBox').hidden=false;
+ const sub=await ntSub();$('#ntSwitch').checked=!!sub&&Notification.permission==='granted'}
+async function ntOff(){try{const sub=await ntSub();if(sub){await sb.from('push_dispositivos').delete().eq('endpoint',sub.endpoint);await sub.unsubscribe()}}catch(e){}}
+$('#ntSwitch').onchange=async e=>{const on=e.target.checked,h=$('#ntHint');
+ try{if(on){if(await Notification.requestPermission()!=='granted'){e.target.checked=false;h.textContent='Permissão negada. Libere as notificações nas configurações do navegador.';return}
+  const sub=await (await navigator.serviceWorker.ready).pushManager.subscribe({userVisibleOnly:true,applicationServerKey:u8(C.vapid)}),j=sub.toJSON();
+  const {error}=await sb.from('push_dispositivos').upsert({endpoint:j.endpoint,chave_p256dh:j.keys.p256dh,chave_auth:j.keys.auth},{onConflict:'endpoint'});if(error)throw error;
+  h.textContent='Notificações ativadas neste aparelho.'}else{await ntOff();h.textContent='Notificações desativadas.'}}
+ catch(x){e.target.checked=!on;h.textContent='Não foi possível alterar as notificações.'}};
+const PLANOS=C.planos||[{id:'basico',nome:'Básico',ate:30},{id:'condominio',nome:'Condomínio',ate:100},{id:'grande',nome:'Grande',ate:300},{id:'sobmedida',nome:'Sob medida',ate:null}];
+function rPlanos(){if(!(me&&S.user&&S.user.p==='sindico'))return;$('#plDemo').hidden=true;$('#plBox').hidden=false;
+ if(!$('#plUn').dataset.i){$('#plUn').dataset.i=1;if(me.condo.unidades)$('#plUn').value=me.condo.unidades}
+ const n=Number($('#plUn').value)||0,rec=n?(PLANOS.find(p=>p.ate==null||n<=p.ate)||{}).id:null;let prev=0;
+ $('#plLista').innerHTML=PLANOS.map(p=>{const faixa=p.ate==null?'Mais de '+prev+' unidades':(prev?'De '+(prev+1)+' a '+p.ate+' unidades':'Até '+p.ate+' unidades');if(p.ate!=null)prev=p.ate;
+  const atual=me.condo.plano===p.id,preco=p.preco!=null?'R$ '+Number(p.preco).toLocaleString('pt-BR',{minimumFractionDigits:2})+'/mês':'Preço a definir';
+  return `<div class="card"><div class="row"><b>${esc(p.nome)}</b>${atual?'<span class="pill s-feito">Plano atual</span>':p.id===rec?'<span class="pill s-andamento">Recomendado</span>':''}</div><p class="mute" style="margin-top:4px">${faixa}</p><p style="font-size:22px;font-weight:800;margin:8px 0">${preco}</p><button class="btn${atual?' alt':''}" data-pl="${p.id}"${atual?' disabled':''}>${atual?'Plano escolhido':'Escolher este plano'}</button></div>`}).join('')}
+$('#plUn').oninput=rPlanos;
+$('#plLista').onclick=async e=>{const b=e.target.closest('[data-pl]');if(!b)return;const n=Number($('#plUn').value);if(!n||n<1){toast('Informe quantas unidades o prédio tem');$('#plUn').focus();return}
+ const {error}=await sb.rpc('escolher_plano',{p_unidades:n,p_plano:b.dataset.pl});if(error)return toast('Não foi possível registrar o plano');me.condo.plano=b.dataset.pl;me.condo.unidades=n;rPlanos();toast('Plano registrado')};
 apply();sb.auth.getSession().then(({data})=>{if(data.session)enter()});
 })();
