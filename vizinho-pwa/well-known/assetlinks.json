@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.netlify.vizinhoapp.twa",
+      "sha256_cert_fingerprints": [
+        "29:76:5F:F8:18:1D:D8:29:8E:26:6C:E5:58:DD:D5:82:C8:3D:74:AB:E6:DC:2D:BD:EC:8A:BC:36:80:44:65:28"
+      ]
+    }
+  }
+]

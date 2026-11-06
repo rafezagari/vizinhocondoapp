@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B6E63">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Vizinho">
+<title>Vizinho – gestão de condomínio</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EDF1F3;--card:#FFFFFF;--ink:#13262B;--mute:#5C6F75;--line:#D5DDE0;--brand:#0B6E63;--brand-ink:#FFFFFF;--sun:#F5B700;--ok:#1E8E4E;--warn:#B45309;--bad:#C0392B;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0E1A1D;--card:#162428;--ink:#E9F1F2;--mute:#93A8AD;--line:#26393E;--brand:#3DC2B1;--brand-ink:#06211E;--sun:#F5B700;--ok:#4CC380;--warn:#F0A04B;--bad:#FF7B6B;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0E1A1D;--card:#162428;--ink:#E9F1F2;--mute:#93A8AD;--line:#26393E;--brand:#3DC2B1;--brand-ink:#06211E;--ok:#4CC380;--warn:#F0A04B;--bad:#FF7B6B;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 "Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-tap-highlight-color:transparent}
+main{max-width:520px;margin:0 auto;padding:16px 16px 32px 68px}
+h1{font-size:26px;line-height:1.15;margin:4px 0 2px;font-weight:800;letter-spacing:-.02em}
+h2{font-size:18px;margin:22px 0 10px;font-weight:600}
+p{margin:0}.mute{color:var(--mute);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
+.hero{background:var(--brand);color:var(--brand-ink);border:0;border-radius:24px;padding:20px}
+.hero .mute{color:inherit;opacity:.8}
+.big{font-size:40px;font-weight:800;letter-spacing:-.03em;line-height:1.1;margin:6px 0 2px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border-radius:14px;border:0;font:inherit;font-weight:600;background:var(--brand);color:var(--brand-ink);cursor:pointer;width:100%}
+.hero .btn{background:var(--card);color:var(--ink);margin-top:14px}
+.btn.alt{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn:focus-visible,.tab:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.opt:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.pill{font-size:12px;font-weight:600;padding:3px 10px;border-radius:99px;border:1.5px solid currentColor;white-space:nowrap}
+.s-aberto{color:var(--warn)}.s-andamento{color:var(--brand)}.s-feito{color:var(--ok)}
+label{display:block;font-size:14px;font-weight:600;margin:12px 0 6px}
+input,select,textarea{width:100%;min-height:48px;padding:10px 12px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+textarea{min-height:90px;resize:vertical}
+.opt{display:block;width:100%;text-align:left;margin-top:8px;padding:12px 14px;min-height:48px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;cursor:pointer;position:relative;overflow:hidden}
+.opt i{position:absolute;inset:0 auto 0 0;background:var(--brand);opacity:.18}
+.opt span{position:relative;display:flex;justify-content:space-between;gap:8px}
+.opt.me{border-color:var(--brand);font-weight:600}
+.bar{display:flex;height:10px;border-radius:6px;overflow:hidden;background:var(--line);margin-top:10px}
+.bar b{background:var(--sun)}
+.tabs{position:fixed;top:0;left:0;bottom:0;width:56px;z-index:15;display:flex;flex-direction:column;gap:4px;background:var(--card);border-right:1px solid var(--line);padding:calc(8px + env(safe-area-inset-top,0px)) 4px calc(8px + env(safe-area-inset-bottom,0px));overflow-x:hidden;overflow-y:auto;transition:width .2s}
+.tabs.open{width:208px;box-shadow:4px 0 24px rgba(0,0,0,.3)}
+.scrim{position:fixed;inset:0;z-index:14;background:rgba(0,0,0,.35)}
+.tab{flex:none;min-height:52px;border:0;background:none;color:var(--mute);font:inherit;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:flex-start;gap:16px;padding:0 13px;border-radius:12px;cursor:pointer;white-space:nowrap;text-align:left}
+.tab svg{flex:none}.tab span{opacity:0;transition:opacity .15s}.tabs.open .tab span{opacity:1}
+.tab[aria-current="page"]{background:var(--bg)}
+.tab svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tab[aria-selected="true"]{color:var(--brand)}
+.view{display:none}.view.on{display:block}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90%}
+.toast.on{opacity:1}
+.quote{font-size:13px;color:var(--mute);margin-top:6px}
+[hidden]{display:none!important}
+.login{position:fixed;inset:0;z-index:20;background:var(--bg);overflow:auto;padding:calc(40px + env(safe-area-inset-top,0px)) 20px calc(24px + env(safe-area-inset-bottom,0px))}
+.login>div{max-width:420px;margin:0 auto}
+.login h1{font-size:44px;letter-spacing:-.03em;margin:0 0 6px}
+.seg{display:flex;gap:8px}
+.seg button{flex:1;min-height:48px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;font:inherit;font-weight:600;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.seg button:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.err{color:var(--bad);font-size:14px;font-weight:600;min-height:20px;margin-top:10px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px}
+.chips button{flex:none;min-height:44px;padding:0 16px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;font:inherit;font-weight:600;cursor:pointer}
+.chips button[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.chips button:focus-visible,.stbtn:focus-visible{outline:3px solid var(--sun);outline-offset:2px}
+.av{flex:none;width:46px;height:46px;border-radius:50%;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;font-weight:800}
+.stbtn{width:48px;height:48px;border:0;background:none;color:var(--sun);font-size:30px;cursor:pointer;border-radius:12px}
+.pill.s-neutro{color:var(--mute)}
+.card:has(>.row>.pill.s-aberto){border-left:5px solid var(--warn)}
+.card:has(>.row>.pill.s-andamento){border-left:5px solid var(--brand)}
+.card:has(>.row>.pill.s-feito){border-left:5px solid var(--ok)}
+.card:has(>.row>.pill.s-neutro){border-left:5px solid var(--line)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="login" id="login">
+ <div>
+  <h1>Vizinho</h1>
+  <p class="mute">Taxa, chamados e votações do seu prédio, no celular.</p>
+  <form id="lForm" novalidate style="margin-top:28px">
+   <label>Entrar como</label>
+   <div class="seg"><button type="button" data-p="morador" aria-pressed="true">Morador</button><button type="button" data-p="sindico" aria-pressed="false">Síndico</button></div>
+   <label for="lMail">E-mail</label>
+   <input id="lMail" type="email" autocomplete="email" inputmode="email" placeholder="voce@email.com">
+   <label for="lSenha">Senha</label>
+   <input id="lSenha" type="password" autocomplete="current-password" placeholder="Mínimo de 4 caracteres">
+   <div id="lCad" hidden>
+    <label for="lNome">Seu nome</label><input id="lNome" autocomplete="name">
+    <label for="lExtra" id="lExtraL">Código do prédio</label><input id="lExtra" autocapitalize="characters">
+    <div id="lAptoW"><label for="lApto" id="lAptoL">Apartamento</label><input id="lApto" placeholder="Ex.: 304"></div>
+    <label style="display:flex;gap:10px;align-items:flex-start;font-weight:400;margin-top:16px"><input type="checkbox" id="lAceite" style="width:24px;height:24px;min-height:24px;flex:none;margin-top:1px"><span>Li e concordo com a <a href="privacidade.html" style="color:var(--brand)">Política de Privacidade</a>.</span></label>
+   </div>
+   <p class="err" id="lErr" role="alert"></p>
+   <button class="btn" type="submit" style="margin-top:8px">Entrar</button>
+   <button class="btn alt" type="button" id="lModo" style="margin-top:10px" hidden>Criar conta</button>
+   <button class="btn alt" type="button" id="lEsq" style="margin-top:10px" hidden>Esqueci minha senha</button>
+   <p class="mute" style="margin-top:14px;text-align:center;font-size:13px"><a href="privacidade.html" style="color:inherit">Política de Privacidade</a></p>
+  </form>
+  <p class="quote" style="margin-top:18px">Protótipo: qualquer e-mail válido e senha com 4 ou mais caracteres funcionam.</p>
+ </div>
+</div>
+<div class="login" id="nova" hidden style="z-index:25"><div>
+ <h1 style="font-size:32px">Nova senha</h1><p class="mute">Escolha uma senha nova para entrar no Vizinho.</p>
+ <form id="nForm" novalidate style="margin-top:24px"><label for="nSenha">Nova senha</label><input id="nSenha" type="password" autocomplete="new-password" placeholder="Mínimo de 6 caracteres">
+ <p class="err" id="nErr" role="alert"></p><button class="btn" type="submit">Salvar nova senha</button></form>
+</div></div>
+<main>
+ <section class="view on" id="v-inicio" aria-label="Início">
+  <p class="mute" id="local">Edifício Jardim das Palmeiras · Apto 304</p>
+  <h1 id="ola">Olá, vizinho</h1>
+  <div class="card hero" style="margin-top:14px">
+   <p class="mute">Taxa de novembro · vence 10/11</p>
+   <p class="big" id="taxa">R$ 642,00</p>
+   <p class="mute" id="taxaSt">Em aberto</p>
+   <button class="btn" id="pix">Copiar código Pix</button>
+  </div>
+  <div class="card" id="instalar" hidden><b>Instale o Vizinho</b><p class="mute">Abra direto da tela inicial do celular, sem digitar endereço.</p><button class="btn" id="btnInstalar" style="margin-top:10px" hidden>Instalar o app</button><p class="mute" id="iosDica" hidden style="margin-top:8px">No iPhone: toque em Compartilhar e depois em “Adicionar à Tela de Início”.</p></div>
+  <div id="resumo"></div>
+  <h2>Avisos</h2>
+  <div id="avisos"></div>
+  <div class="card"><b>Manutenção do elevador B</b><p class="mute">Quinta, das 9h às 12h. Use o elevador A.</p></div>
+  <div class="card"><b>Assembleia aberta</b><p class="mute">Há uma votação aguardando você.</p><button class="btn alt" style="margin-top:10px" data-go="votos">Ver votação</button></div>
+  <h2>Contas do condomínio</h2>
+  <div class="card">
+   <div class="row"><span>Arrecadado em outubro</span><b>R$ 58.320</b></div>
+   <div class="row" style="margin-top:8px"><span>Despesas</span><b>R$ 51.940</b></div>
+   <div class="bar" role="img" aria-label="89% da arrecadação gasta"><b style="width:89%"></b></div>
+   <p class="quote">Inadimplência: 6% das unidades.</p>
+  </div>
+ </section>
+
+ <section class="view" id="v-chamados" aria-label="Chamados">
+  <h1>Chamados</h1><p class="mute">Conte o problema e a equipe agenda um prestador verificado.</p>
+  <div class="card" style="margin-top:14px">
+   <label for="cTipo">Tipo de serviço</label>
+   <select id="cTipo">
+    <option value="Elétrica|R$ 90 a visita">Elétrica · R$ 90 a visita</option>
+    <option value="Hidráulica|R$ 110 a visita">Hidráulica · R$ 110 a visita</option>
+    <option value="Limpeza|R$ 70 a hora">Limpeza · R$ 70 a hora</option>
+    <option value="Portaria|Sem custo">Portaria · sem custo</option>
+   </select>
+   <label for="cDesc">O que aconteceu?</label>
+   <textarea id="cDesc" placeholder="Ex.: lâmpada do corredor do 3º andar queimada"></textarea>
+   <label for="cFoto">Foto (opcional)</label>
+   <input id="cFoto" type="file" accept="image/*">
+   <button class="btn" id="cEnviar" style="margin-top:14px">Abrir chamado</button>
+  </div>
+  <h2>Meus chamados</h2>
+  <div id="cLista"></div>
+ </section>
+
+ <section class="view" id="v-servicos" aria-label="Serviços">
+  <h1>Serviços</h1><p class="mute">Prestadores verificados pelo condomínio, com preço tabelado.</p>
+  <div class="chips" id="sFiltro" style="margin-top:14px"></div>
+  <div id="sServ"></div>
+ </section>
+
+ <section class="view" id="v-votos" aria-label="Votações">
+  <h1>Assembleia</h1><p class="mute">Seu voto fica registrado com data e hora.</p>
+  <div id="vLista" style="margin-top:14px"></div>
+ </section>
+
+ <section class="view" id="v-reservas" aria-label="Reservas">
+  <h1>Reservas</h1><p class="mute">Áreas comuns do prédio.</p>
+  <div class="card" style="margin-top:14px">
+   <label for="rArea">Área</label>
+   <select id="rArea"><option>Salão de festas</option><option>Churrasqueira</option><option>Quadra</option></select>
+   <label for="rData">Data</label>
+   <input id="rData" type="date">
+   <label for="rHora">Horário</label>
+   <select id="rHora"><option>10h às 14h</option><option>14h às 18h</option><option>18h às 22h</option></select>
+   <button class="btn" id="rSalvar" style="margin-top:14px">Reservar</button>
+  </div>
+  <h2 id="rH">Minhas reservas</h2>
+  <div id="rLista"></div>
+ </section>
+
+ <section class="view" id="v-sindico" aria-label="Painel do síndico">
+  <h1>Painel do síndico</h1><p class="mute">Visão de gestão do Edifício Jardim das Palmeiras.</p>
+  <div id="sStats" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px"></div>
+  <button class="btn" id="sConvite" style="margin-top:12px" hidden>Convidar moradores</button>
+  <h2>Chamados dos moradores</h2>
+  <div id="sCh"></div>
+  <h2>Inadimplência</h2>
+  <div id="sInad"></div>
+  <h2>Novo aviso</h2>
+  <div class="card">
+   <label for="aT">Título</label><input id="aT" placeholder="Ex.: Limpeza da caixa d’água">
+   <label for="aD">Mensagem</label><textarea id="aD"></textarea>
+   <button class="btn" id="sPub" style="margin-top:14px">Publicar aviso</button>
+  </div>
+  <h2>Nova votação</h2>
+  <div class="card">
+   <label for="qT">Pergunta para os moradores</label><input id="qT" placeholder="Ex.: Pintar a fachada em 2027?">
+   <button class="btn" id="sVoto" style="margin-top:14px">Abrir votação (aprovo ou reprovo)</button>
+  </div>
+  <div id="sPrest" hidden>
+   <h2>Novo prestador</h2>
+   <div class="card">
+    <label for="pN">Nome</label><input id="pN" placeholder="Ex.: Carlos Mendes">
+    <label for="pC">Categoria</label><select id="pC"><option>Elétrica</option><option>Hidráulica</option><option>Limpeza</option></select>
+    <label for="pP">Preço tabelado</label><input id="pP" placeholder="Ex.: R$ 90 a visita">
+    <button class="btn" id="pSalvar" style="margin-top:14px">Cadastrar prestador</button>
+   </div>
+  </div>
+ </section>
+<section class="view" id="v-gerenciar" aria-label="Publicações">
+  <h1>Publicações</h1><p class="mute">Avisos, votações e prestadores do prédio. A cor de cada item mostra o estado dele.</p>
+  <p class="mute" id="gerDemo" style="margin-top:14px">Disponível quando o app estiver ligado ao servidor.</p>
+  <div id="sGer"></div>
+ </section>
+<section class="view" id="v-perfil" aria-label="Perfil">
+  <h1>Meu perfil</h1><p class="mute" id="pfSub"></p>
+  <p class="mute" id="pfDemo" style="margin-top:14px">Disponível quando o app estiver ligado ao servidor.</p>
+  <div id="pfBox" hidden>
+   <div class="card" style="margin-top:14px">
+    <label for="pfNome">Nome</label><input id="pfNome" autocomplete="name">
+    <label for="pfApto" id="pfAptoL">Apartamento</label><input id="pfApto" placeholder="Ex.: 304">
+    <p class="quote">Cada apartamento tem um voto nas votações. Depois de votar, o apartamento não pode mais ser trocado.</p>
+    <p class="err" id="pfErr" role="alert"></p>
+    <button class="btn" id="pfSalvar">Salvar</button>
+   </div>
+   <div class="card"><p class="mute">E-mail</p><b id="pfMail" style="overflow-wrap:anywhere"></b><p class="mute" style="margin-top:12px">Prédio</p><b id="pfPredio"></b></div>
+   <p class="mute" style="margin-top:6px;text-align:center"><a href="privacidade.html" style="color:inherit">Política de Privacidade</a></p>
+  </div>
+ </section>
+</main>
+
+<div class="scrim" id="scrim" hidden></div>
+<nav class="tabs" aria-label="Menu principal">
+ <button class="tab" id="tabsToggle" aria-expanded="false" aria-label="Expandir menu"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Menu</span></button>
+ <button class="tab" data-go="inicio" aria-selected="true"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg><span>Início</span></button>
+ <button class="tab" data-go="chamados" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5 5L3 18l3 3 6.7-6.7a4 4 0 0 0 5-5l-2.5 2.5-2.2-.5-.5-2.2z"/></svg><span>Chamados</span></button>
+ <button class="tab" data-go="servicos" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg><span>Serviços</span></button>
+ <button class="tab" data-go="votos" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM9 9h6M9 13h6"/></svg><span>Votações</span></button>
+ <button class="tab" data-go="reservas" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M4 6h16v14H4zM4 10h16M8 3v4M16 3v4"/></svg><span>Reservas</span></button>
+ <button class="tab" id="tabSin" data-go="sindico" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.4 7.7-8 9-4.6-1.3-8-4.5-8-9V6zM9 12l2 2 4-4"/></svg><span>Síndico</span></button>
+ <button class="tab" id="tabGer" data-go="gerenciar" aria-selected="false" hidden><svg viewBox="0 0 24 24"><path d="M9 4h6a1 1 0 0 1 1 1v1H8V5a1 1 0 0 1 1-1zM6 6h12v14H6zM9 11h6M9 15h6"/></svg><span>Publicações</span></button>
+ <button class="tab" id="tabPerfil" data-go="perfil" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 20c0-4 3.6-6 8-6s8 2 8 6"/></svg><span>Perfil</span></button>
+ <button class="tab" id="sair" style="margin-top:auto" aria-label="Sair da conta"><svg viewBox="0 0 24 24"><path d="M9 4H5v16h4M16 8l4 4-4 4M20 12H9"/></svg><span>Sair</span></button>
+</nav>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const KEY='vizinho-v1';
+let S={paid:false,ch:[{id:1,tipo:'Elétrica',d:'Tomada da garagem sem energia',st:'andamento',preco:'R$ 90 a visita'}],
+votos:[{id:1,q:'Trocar o portão da garagem por um modelo automático?',o:['Sim, aprovo (R$ 18.500)','Não, prefiro manter','Quero mais orçamentos'],n:[41,12,9],me:null},
+{id:2,q:'Aprovar a prestação de contas de outubro?',o:['Aprovo','Reprovo'],n:[58,3],me:null}],res:[]};
+try{const r=localStorage.getItem(KEY);if(r)S=JSON.parse(r)}catch(e){}
+S.avisos=S.avisos||[];S.inad=S.inad||[{n:'Apto 102',v:642,m:2,s:0},{n:'Apto 215',v:1284,m:3,s:0},{n:'Apto 408',v:642,m:1,s:0}];
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const $=s=>document.querySelector(s);
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('on'),2200)}
+function go(v){document.querySelectorAll('.view').forEach(e=>e.classList.toggle('on',e.id==='v-'+v));
+ document.querySelectorAll('.tab[data-go]').forEach(b=>{const on=b.dataset.go===v;b.setAttribute('aria-selected',on);b.setAttribute('aria-current',on?'page':'false')});window.scrollTo(0,0)}
+document.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g)go(g.dataset.go)});
+const stTxt={aberto:'Aberto',andamento:'Em andamento',feito:'Resolvido'};
+function rTaxa(){$('#taxaSt').textContent=S.paid?'Pago. Obrigado!':'Em aberto';$('#pix').textContent=S.paid?'Pagamento confirmado':'Copiar código Pix';$('#pix').disabled=S.paid}
+function rCh(){$('#cLista').innerHTML=S.ch.length?S.ch.map(c=>`<div class="card"><div class="row"><b>${esc(c.tipo)}</b><span class="pill s-${c.st}">${stTxt[c.st]}</span></div><p style="margin-top:6px">${esc(c.d)}</p><p class="quote">${esc(c.preco)}</p></div>`).join(''):'<p class="mute">Nenhum chamado ainda.</p>'}
+function rVotos(){$('#vLista').innerHTML=S.votos.map(v=>{const t0=v.n.reduce((a,b)=>a+b,0),t=t0||1;
+ return `<div class="card"><b>${esc(v.q)}</b>${v.o.map((o,i)=>`<button class="opt ${v.me===i?'me':''}" data-v="${v.id}:${i}"><i style="width:${Math.round(v.n[i]/t*100)}%"></i><span><span>${esc(o)}</span><span>${Math.round(v.n[i]/t*100)}%</span></span></button>`).join('')}<p class="quote">${t0} ${t0===1?'voto':'votos'} · 1 por apartamento${v.me!==null?' · seu apartamento já votou':''}</p></div>`}).join('')}
+function rRes(){$('#rLista').innerHTML=S.res.length?S.res.map(r=>`<div class="card row"><div><b>${esc(r.a)}</b><p class="mute">${esc(r.dt)} · ${esc(r.h)}</p></div><span class="pill s-feito">Confirmada</span></div>`).join(''):'<p class="mute">Nenhuma reserva ainda.</p>'}
+$('#pix').onclick=async()=>{try{await navigator.clipboard.writeText('00020126580014br.gov.bcb.pix0136vizinho-palmeiras-304-nov5204000053039865406642.005802BR5925CONDOMINIO JARDIM PALMEIRAS6009SAO PAULO62070503***6304ABCD')}catch(e){}
+ toast('Código Pix copiado. Cole no app do seu banco.');setTimeout(()=>{S.paid=true;save();rTaxa()},1500)};
+$('#cEnviar').onclick=()=>{const d=$('#cDesc').value.trim();if(!d){toast('Descreva o problema para abrir o chamado');$('#cDesc').focus();return}
+ const [tipo,preco]=$('#cTipo').value.split('|');S.ch.unshift({id:Date.now(),tipo,d,st:'aberto',preco});$('#cDesc').value='';$('#cFoto').value='';save();rCh();rSin();toast('Chamado aberto')};
+$('#vLista').onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;const [id,i]=b.dataset.v.split(':').map(Number);const v=S.votos.find(x=>x.id===id);
+ if(v.me!==null){toast('Você já votou nesta pauta');return}v.me=i;v.n[i]++;save();rVotos();toast('Voto registrado')};
+const hoje=new Date().toISOString().slice(0,10);$('#rData').min=hoje;$('#rData').value=hoje;
+$('#rSalvar').onclick=()=>{const dt=$('#rData').value;if(!dt){toast('Escolha uma data');return}
+ const a=$('#rArea').value,h=$('#rHora').value,df=dt.split('-').reverse().join('/');if(S.res.some(r=>r.a===a&&r.dt===df&&r.h===h)){toast('Esse horário já está reservado');return}
+ S.res.unshift({a,dt:dt.split('-').reverse().join('/'),h});save();rRes();toast('Reserva confirmada')};
+const brl=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+function rAvisos(){$('#avisos').innerHTML=S.avisos.map(a=>`<div class="card"><b>${esc(a.t)}</b><p class="mute">${esc(a.d)}</p></div>`).join('')}
+function rSin(){
+ const ab=S.ch.filter(c=>c.st!=='feito').length,tot=S.inad.reduce((a,b)=>a+b.v,0);
+ $('#sStats').innerHTML=`<div class="card" style="margin:0"><p class="mute">Em atraso</p><p class="big" style="font-size:26px">${brl(tot)}</p><p class="mute">${S.inad.length} unidades</p></div><div class="card" style="margin:0"><p class="mute">Chamados abertos</p><p class="big" style="font-size:26px">${ab}</p><p class="mute">de ${S.ch.length} no total</p></div>`;
+ $('#sCh').innerHTML=S.ch.length?S.ch.map(c=>`<div class="card"><div class="row"><b>${esc(c.tipo)}</b><span class="pill s-${c.st}">${stTxt[c.st]}</span></div><p style="margin:6px 0">${esc(c.d)}</p><label for="st${c.id}" class="mute" style="margin-top:8px">Alterar status</label><select id="st${c.id}" data-st="${c.id}">${Object.keys(stTxt).map(k=>`<option value="${k}" ${k===c.st?'selected':''}>${stTxt[k]}</option>`).join('')}</select></div>`).join(''):'<p class="mute">Nenhum chamado dos moradores.</p>';
+ $('#sInad').innerHTML=S.inad.map((x,i)=>`<div class="card row"><div><b>${esc(x.n)}</b><p class="mute">${brl(x.v)} · ${x.m} ${x.m>1?'meses':'mês'} em atraso</p></div><button class="btn alt" style="width:auto" data-l="${i}" ${x.s?'disabled':''}>${x.s?'Enviado':'Lembrete'}</button></div>`).join('')}
+$('#sCh').onchange=e=>{const s=e.target.closest('[data-st]');if(!s)return;const c=S.ch.find(x=>x.id===Number(s.dataset.st));c.st=s.value;save();rCh();rSin();rServ();toast('Status atualizado')};
+$('#sInad').onclick=e=>{const b=e.target.closest('[data-l]');if(!b)return;const x=S.inad[Number(b.dataset.l)];x.s=1;save();rSin();toast('Lembrete enviado para '+x.n)};
+$('#sPub').onclick=()=>{const t=$('#aT').value.trim(),d=$('#aD').value.trim();if(!t){toast('Dê um título ao aviso');$('#aT').focus();return}
+ S.avisos.unshift({t,d});$('#aT').value='';$('#aD').value='';save();rAvisos();toast('Aviso publicado para os moradores')};
+$('#sVoto').onclick=()=>{const q=$('#qT').value.trim();if(!q){toast('Escreva a pergunta da votação');$('#qT').focus();return}
+ S.votos.unshift({id:Date.now(),q,o:['Aprovo','Reprovo'],n:[0,0],me:null});$('#qT').value='';save();rVotos();toast('Votação aberta aos moradores')};
+S.user=S.user||null;
+let perfil='morador';
+function apply(){const u=S.user;$('#login').hidden=!!u;if(!u)return;
+ $('#tabSin').hidden=$('#tabGer').hidden=u.p!=='sindico';
+ $('#ola').textContent='Olá, '+u.n;
+ $('#local').textContent='Edifício Jardim das Palmeiras · '+(u.p==='sindico'?'Síndico':'Apto 304');
+ go(u.p==='sindico'?'sindico':'inicio')}
+document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{perfil=b.dataset.p;document.querySelectorAll('[data-p]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)))});
+$('#lForm').onsubmit=e=>{e.preventDefault();const m=$('#lMail').value.trim(),s=$('#lSenha').value;
+ if(!/^\S+@\S+\.\S+$/.test(m)){$('#lErr').textContent='Digite um e-mail válido, como voce@email.com';$('#lMail').focus();return}
+ if(s.length<4){$('#lErr').textContent='A senha precisa ter pelo menos 4 caracteres';$('#lSenha').focus();return}
+ $('#lErr').textContent='';const p=m.split('@')[0].split(/[._-]/)[0];
+ S.user={p:perfil,n:p.charAt(0).toUpperCase()+p.slice(1)};save();$('#lSenha').value='';apply()};
+$('#sair').onclick=()=>{S.user=null;save();$('#lMail').value='';$('#lSenha').value='';apply();toast('Você saiu da conta')};
+S.pres=S.pres||[
+ {id:1,n:'Carlos Mendes',cat:'Elétrica',preco:'R$ 90 a visita',soma:250,qtd:52,c:'Chegou no horário e resolveu na hora.'},
+ {id:2,n:'Júlia Torres',cat:'Elétrica',preco:'R$ 90 a visita',soma:143,qtd:31,c:'Explicou o problema antes de começar.'},
+ {id:3,n:'Marcos Silva',cat:'Hidráulica',preco:'R$ 110 a visita',soma:188,qtd:40,c:'Consertou o vazamento sem sujeira.'},
+ {id:4,n:'Hidro Rápido',cat:'Hidráulica',preco:'R$ 110 a visita',soma:95,qtd:22,c:'Bom serviço, mas demorou a chegar.'},
+ {id:5,n:'Limpa Já',cat:'Limpeza',preco:'R$ 70 a hora',soma:314,qtd:64,c:'Equipe caprichosa, áreas comuns brilhando.'},
+ {id:6,n:'Rosa Almeida',cat:'Limpeza',preco:'R$ 70 a hora',soma:81,qtd:18,c:'Atenciosa e pontual.'}];
+S.minhas=S.minhas||{};
+let filtro='Todos',aberto=null;
+const estrelas=n=>'★'.repeat(Math.round(n))+'☆'.repeat(5-Math.round(n));
+function rServ(){
+ $('#sFiltro').innerHTML=['Todos','Elétrica','Hidráulica','Limpeza'].map(f=>`<button data-f="${f}" aria-pressed="${f===filtro}">${f}</button>`).join('');
+ $('#sServ').innerHTML=S.pres.filter(p=>filtro==='Todos'||p.cat===filtro).sort((a,b)=>(b.qtd?b.soma/b.qtd:0)-(a.qtd?a.soma/a.qtd:0)).map(p=>{const m=p.qtd?p.soma/p.qtd:0,mine=S.ch.filter(c=>c.d==='Contratado: '+p.n),can=mine.some(c=>c.st==='feito'),ini=p.n.split(' ').slice(0,2).map(w=>w[0]).join('');
+ return `<div class="card"><div class="row" style="justify-content:flex-start;gap:12px"><div class="av" aria-hidden="true">${esc(ini)}</div><div style="flex:1"><div class="row"><b>${esc(p.n)}</b><span class="pill s-feito">Verificado</span></div><p class="mute"><span style="color:var(--sun)" aria-hidden="true">${p.qtd?estrelas(m):''}</span> ${p.qtd?m.toFixed(1).replace('.',',')+' ('+p.qtd+')':'Sem avaliações'} · ${p.cat}</p></div></div>${p.c?`<p class="quote">“${esc(p.c)}”</p>`:''}<div class="row" style="margin-top:12px;gap:8px"><button class="btn" style="flex:1;width:auto" data-c="${p.id}">Contratar · ${esc(p.preco)}</button><button class="btn alt" style="width:auto" data-a="${p.id}" ${can||S.minhas[p.id]?'':'disabled'}>${S.minhas[p.id]?'Sua nota: '+S.minhas[p.id]:'Avaliar'}</button></div>${!can&&!S.minhas[p.id]?`<p class="quote">${mine.length?'Você poderá avaliar quando o síndico marcar o serviço como resolvido.':'Contrate este prestador para poder avaliar depois do serviço.'}</p>`:''}${aberto===p.id?`<div class="row" style="justify-content:center;gap:2px;margin-top:8px" role="group" aria-label="Sua nota para ${esc(p.n)}">${[1,2,3,4,5].map(i=>`<button class="stbtn" data-n="${p.id}:${i}" aria-label="${i} ${i>1?'estrelas':'estrela'}">${S.minhas[p.id]>=i?'★':'☆'}</button>`).join('')}</div>`:''}</div>`}).join('')}
+$('#sFiltro').onclick=e=>{const b=e.target.closest('[data-f]');if(!b)return;filtro=b.dataset.f;rServ()};
+$('#sServ').onclick=e=>{
+ const c=e.target.closest('[data-c]'),a=e.target.closest('[data-a]'),n=e.target.closest('[data-n]');
+ if(c){const p=S.pres.find(x=>x.id===Number(c.dataset.c));S.ch.unshift({id:Date.now(),tipo:p.cat,d:'Contratado: '+p.n,st:'aberto',preco:p.preco});save();rCh();rSin();go('chamados');toast('Chamado aberto com '+p.n)}
+ else if(a){const id=Number(a.dataset.a);aberto=aberto===id?null:id;rServ()}
+ else if(n){const [id,v]=n.dataset.n.split(':').map(Number),p=S.pres.find(x=>x.id===id);
+  if(S.minhas[id])p.soma-=S.minhas[id];else p.qtd++;p.soma+=v;S.minhas[id]=v;aberto=null;save();rServ();toast('Obrigado pela avaliação')}};
+let dp=null;const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;if(standalone)return;$('#btnInstalar').hidden=false;$('#instalar').hidden=false});
+if(ios&&!standalone){$('#iosDica').hidden=false;$('#instalar').hidden=false}
+$('#btnInstalar').onclick=async()=>{if(!dp)return;dp.prompt();try{await dp.userChoice}catch(e){}dp=null;$('#instalar').hidden=true};
+addEventListener('appinstalled',()=>{$('#instalar').hidden=true;toast('App instalado')});
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+const nav=document.querySelector('.tabs'),tg=$('#tabsToggle');
+function menu(o){nav.classList.toggle('open',o);tg.setAttribute('aria-expanded',String(o));tg.setAttribute('aria-label',o?'Recolher menu':'Expandir menu');$('#scrim').hidden=!o}
+tg.onclick=()=>menu(!nav.classList.contains('open'));
+$('#scrim').onclick=()=>menu(false);
+nav.addEventListener('click',e=>{if(e.target.closest('[data-go],#sair'))menu(false)});
+addEventListener('keydown',e=>{if(e.key==='Escape')menu(false)});
+rTaxa();rCh();rVotos();rRes();rAvisos();rSin();rServ();apply();
+</script>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>window.supabase||document.write('<script src="https://unpkg.com/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"><\/script>')</script>
+<script src="real.js"></script>
+</body>
+</html>
