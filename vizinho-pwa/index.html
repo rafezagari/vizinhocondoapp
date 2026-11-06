@@ -21,7 +21,7 @@ box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:en
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *,*::before,*::after{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 "Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-tap-highlight-color:transparent}
-main{max-width:520px;margin:0 auto;padding:16px 16px 32px 68px}
+main{max-width:1700px;margin:0 auto;padding:clamp(12px,2vw,28px) calc(clamp(12px,2.5vw,32px) + env(safe-area-inset-right,0px)) 40px calc(var(--rail) + clamp(12px,2vw,24px))}
 h1{font-size:26px;line-height:1.15;margin:4px 0 2px;font-weight:800;letter-spacing:-.02em}
 h2{font-size:18px;margin:22px 0 10px;font-weight:600}
 p{margin:0}.mute{color:var(--mute);font-size:14px}
@@ -45,7 +45,7 @@ textarea{min-height:90px;resize:vertical}
 .opt.me{border-color:var(--brand);font-weight:600}
 .bar{display:flex;height:10px;border-radius:6px;overflow:hidden;background:var(--line);margin-top:10px}
 .bar b{background:var(--sun)}
-.tabs{position:fixed;top:0;left:0;bottom:0;width:56px;z-index:15;display:flex;flex-direction:column;gap:4px;background:var(--card);border-right:1px solid var(--line);padding:calc(8px + env(safe-area-inset-top,0px)) 4px calc(8px + env(safe-area-inset-bottom,0px));overflow-x:hidden;overflow-y:auto;transition:width .2s}
+.tabs{position:fixed;top:0;left:0;bottom:0;width:var(--rail,56px);z-index:15;display:flex;flex-direction:column;gap:4px;background:var(--card);border-right:1px solid var(--line);padding:calc(8px + env(safe-area-inset-top,0px)) 4px calc(8px + env(safe-area-inset-bottom,0px));overflow-x:hidden;overflow-y:auto;transition:width .2s}
 .tabs.open{width:208px;box-shadow:4px 0 24px rgba(0,0,0,.3)}
 .scrim{position:fixed;inset:0;z-index:14;background:rgba(0,0,0,.35)}
 .tab{flex:none;min-height:52px;border:0;background:none;color:var(--mute);font:inherit;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:flex-start;gap:16px;padding:0 13px;border-radius:12px;cursor:pointer;white-space:nowrap;text-align:left}
@@ -75,7 +75,20 @@ textarea{min-height:90px;resize:vertical}
 .stbtn{width:48px;height:48px;border:0;background:none;color:var(--sun);font-size:30px;cursor:pointer;border-radius:12px}
 .av{background-size:cover;background-position:center}
 .seg button{padding:0 6px;font-size:14px}
-html[data-fonte="g"] main{zoom:1.15}html[data-fonte="gg"] main{zoom:1.3}
+:root{--rail:calc(56px + env(safe-area-inset-left,0px));--zt:1;--zf:1}
+@media (min-width:1024px){:root{--rail:calc(220px + env(safe-area-inset-left,0px))}#tabsToggle{display:none}.tabs .tab span{opacity:1}.scrim{display:none!important}}
+@media (min-width:1500px){:root{--zt:1.15}}
+@media (min-width:2200px){:root{--zt:1.35}}
+html[data-fonte="g"]{--zf:1.15}html[data-fonte="gg"]{--zf:1.3}
+main{zoom:calc(var(--zt)*var(--zf))}
+.tabs{padding-left:calc(4px + env(safe-area-inset-left,0px))}
+.tabs.open{width:calc(208px + env(safe-area-inset-left,0px))}
+.tab{transition:background .2s,color .2s}
+.view.on{column-width:340px;column-gap:20px;animation:vz-in .28s ease-out}
+.view>h1,.view>h1+p,.view>.chips,#v-inicio>#local,#v-inicio>.row{column-span:all}
+.card{break-inside:avoid}h2{break-after:avoid}
+@keyframes vz-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.view.on{animation:none}}
 :root[data-contraste="alto"]{--bg:#fff;--card:#fff;--ink:#000;--mute:#26363B;--line:#6B7C82;--brand:#00574D;--bad:#A01808;--warn:#8A4400;--ok:#0B6B35}
 @media (prefers-color-scheme:dark){:root[data-contraste="alto"]:not([data-theme="light"]){--bg:#000;--card:#0A1214;--ink:#fff;--mute:#D3E1E4;--line:#8DA2A8;--brand:#5EEAD4;--brand-ink:#00201C}}
 :root[data-contraste="alto"][data-theme="dark"]{--bg:#000;--card:#0A1214;--ink:#fff;--mute:#D3E1E4;--line:#8DA2A8;--brand:#5EEAD4;--brand-ink:#00201C}
@@ -238,8 +251,7 @@ html[data-fonte="g"] main{zoom:1.15}html[data-fonte="gg"] main{zoom:1.3}
     <button class="btn" id="pfSalvar">Salvar</button>
    </div>
    <div class="card"><p class="mute">E-mail</p><b id="pfMail" style="overflow-wrap:anywhere"></b><p class="mute" style="margin-top:12px">Prédio</p><b id="pfPredio"></b></div>
-   <p class="mute" style="margin-top:6px;text-align:center"><a href="privacidade.html" style="color:inherit">Política de Privacidade</a></p>
-  </div>
+   </div>
   <div class="card"><b>Aparência</b>
    <p style="font-weight:600;font-size:14px;margin:12px 0 6px">Tema</p>
    <div class="seg" role="group" aria-label="Tema"><button type="button" data-pt="auto" aria-pressed="true">Automático</button><button type="button" data-pt="claro" aria-pressed="false">Claro</button><button type="button" data-pt="escuro" aria-pressed="false">Escuro</button></div>
@@ -249,6 +261,7 @@ html[data-fonte="g"] main{zoom:1.15}html[data-fonte="gg"] main{zoom:1.3}
    <p class="quote">Estas escolhas valem só para este aparelho.</p>
   </div>
   <div id="ntBox" hidden><div class="card"><label style="display:flex;gap:12px;align-items:center;font-weight:600;margin:0"><input type="checkbox" id="ntSwitch" style="width:24px;height:24px;min-height:24px;flex:none"><span>Receber notificações no celular</span></label><p class="quote" id="ntHint" style="margin-top:8px">Avisos, novas votações e mudanças nos seus chamados.</p></div></div>
+  <p class="mute" style="margin:24px 0 8px;text-align:center"><a href="privacidade.html" style="color:inherit">Política de Privacidade</a></p>
  </section>
 <section class="view" id="v-planos" aria-label="Planos">
   <h1>Planos</h1><p class="mute">Escolha o plano de acordo com o número de unidades do prédio.</p>

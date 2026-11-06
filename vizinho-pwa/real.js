@@ -154,13 +154,13 @@ $('#ntSwitch').onchange=async e=>{const on=e.target.checked,h=$('#ntHint');
   const {error}=await sb.from('push_dispositivos').upsert({endpoint:j.endpoint,chave_p256dh:j.keys.p256dh,chave_auth:j.keys.auth},{onConflict:'endpoint'});if(error)throw error;
   h.textContent='Notificações ativadas neste aparelho.'}else{await ntOff();h.textContent='Notificações desativadas.'}}
  catch(x){e.target.checked=!on;h.textContent='Não foi possível alterar as notificações.'}};
-const PLANOS=C.planos||[{id:'basico',nome:'Básico',ate:30},{id:'condominio',nome:'Condomínio',ate:100},{id:'grande',nome:'Grande',ate:300},{id:'sobmedida',nome:'Sob medida',ate:null}];
+const PLANOS=C.planos||[{id:'starter',nome:'Starter',ate:20,preco:79},{id:'standard',nome:'Standard',ate:60,preco:149},{id:'pro',nome:'Pro',ate:120,preco:299},{id:'enterprise',nome:'Enterprise',ate:null,rotulo:'Sob consulta',nota:'R$ 2,50 a R$ 4,00 por unidade adicional'}];
 function rPlanos(){if(!(me&&S.user&&S.user.p==='sindico'))return;$('#plDemo').hidden=true;$('#plBox').hidden=false;
  if(!$('#plUn').dataset.i){$('#plUn').dataset.i=1;if(me.condo.unidades)$('#plUn').value=me.condo.unidades}
  const n=Number($('#plUn').value)||0,rec=n?(PLANOS.find(p=>p.ate==null||n<=p.ate)||{}).id:null;let prev=0;
  $('#plLista').innerHTML=PLANOS.map(p=>{const faixa=p.ate==null?'Mais de '+prev+' unidades':(prev?'De '+(prev+1)+' a '+p.ate+' unidades':'Até '+p.ate+' unidades');if(p.ate!=null)prev=p.ate;
-  const atual=me.condo.plano===p.id,preco=p.preco!=null?'R$ '+Number(p.preco).toLocaleString('pt-BR',{minimumFractionDigits:2})+'/mês':'Preço a definir';
-  return `<div class="card"><div class="row"><b>${esc(p.nome)}</b>${atual?'<span class="pill s-feito">Plano atual</span>':p.id===rec?'<span class="pill s-andamento">Recomendado</span>':''}</div><p class="mute" style="margin-top:4px">${faixa}</p><p style="font-size:22px;font-weight:800;margin:8px 0">${preco}</p><button class="btn${atual?' alt':''}" data-pl="${p.id}"${atual?' disabled':''}>${atual?'Plano escolhido':'Escolher este plano'}</button></div>`}).join('')}
+  const atual=me.condo.plano===p.id,preco=p.preco!=null?'R$ '+Number(p.preco).toLocaleString('pt-BR',{minimumFractionDigits:2})+'/mês':(p.rotulo||'Preço a definir');
+  return `<div class="card"><div class="row"><b>${esc(p.nome)}</b>${atual?'<span class="pill s-feito">Plano atual</span>':p.id===rec?'<span class="pill s-andamento">Recomendado</span>':''}</div><p class="mute" style="margin-top:4px">${faixa}</p><p style="font-size:22px;font-weight:800;margin:8px 0">${preco}</p>${p.nota?`<p class="quote" style="margin:-4px 0 8px">${esc(p.nota)}</p>`:''}<button class="btn${atual?' alt':''}" data-pl="${p.id}"${atual?' disabled':''}>${atual?'Plano escolhido':'Escolher este plano'}</button></div>`}).join('')}
 $('#plUn').oninput=rPlanos;
 $('#plLista').onclick=async e=>{const b=e.target.closest('[data-pl]');if(!b)return;const n=Number($('#plUn').value);if(!n||n<1){toast('Informe quantas unidades o prédio tem');$('#plUn').focus();return}
  const {error}=await sb.rpc('escolher_plano',{p_unidades:n,p_plano:b.dataset.pl});if(error)return toast('Não foi possível registrar o plano');me.condo.plano=b.dataset.pl;me.condo.unidades=n;rPlanos();toast('Plano registrado')};
